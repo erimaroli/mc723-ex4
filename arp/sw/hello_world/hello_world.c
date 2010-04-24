@@ -2,7 +2,7 @@
 
 int main(int argc, char *argv[]){
   int i;
-  for(i=0;i<10;i++)
+  for(i=0;i<9000;i++)
     printf("Hi from processor MIPS!\n");
 
   exit(0); // To avoid cross-compiler exit routine
