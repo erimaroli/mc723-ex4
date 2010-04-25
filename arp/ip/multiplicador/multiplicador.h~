@@ -31,8 +31,8 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef ROTEADOR_H_
-#define ROTEADOR_H_
+#ifndef LOCK_H_
+#define LOCK_H_
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -57,13 +57,15 @@ namespace user
 {
 
 /// A TLM memory
-class roteador :
+class lock :
   public sc_module,
   public ac_tlm_transport_if // Using ArchC TLM protocol
 {
 public:
-  ac_tlm_port porta_mestre1;
-  ac_tlm_port porta_mestre2;
+  /// Internal write
+  ac_tlm_rsp_status writel( const uint32_t &, const uint32_t & );
+  /// Internal read
+  ac_tlm_rsp_status readl( uint32_t & , const uint32_t &);
   /// Exposed port with ArchC interface
   sc_export< ac_tlm_transport_if > target_export;
 
@@ -77,14 +79,16 @@ public:
   ac_tlm_rsp transport( const ac_tlm_req &request ) {
 
     ac_tlm_rsp response;
-    ac_tlm_req novo_request;
     
-    if(request.addr == 5242880){
-      novo_request = request;
-      novo_request.addr = 0;
-      response = porta_mestre2->transport(novo_request);
-    } else {
-      response = porta_mestre1->transport(request);
+    switch( request.type ) {
+    case READ :
+      response.status = readl(response.data, request.addr);
+      break;
+    case WRITE:
+      response.status = writel(request.data, request.addr);
+      break;
+    default:
+      response.status = ERROR;
     }
     
     return response;
@@ -93,20 +97,20 @@ public:
 
   /**
    * Default constructor.
-   *
    * @param k Memory size in kilowords.
    *
    */
-  roteador( sc_module_name module_name);
+  lock( sc_module_name module_name);
 
   /**
    * Default destructor.
    */
-  ~roteador();
+  ~lock();
 
-
+  private:
+    uint32_t * l;
 };
 
 };
 
-#endif //ROTEADOR_H_
+#endif //LOCK_H_

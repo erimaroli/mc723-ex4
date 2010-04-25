@@ -27,15 +27,15 @@
 // SystemC includes
 // ArchC includes
 
-#include "lock.h"
+#include "multiplicador.h"
 
 //////////////////////////////////////////////////////////////////////////////
 
 /// Namespace to isolate memory from ArchC
-using user::lock;
+using user::multiplicador;
 
 /// Constructor
-lock::lock( sc_module_name module_name) :
+multiplicador::multiplicador( sc_module_name module_name) :
   sc_module( module_name ),
   target_export("iport")
 {
@@ -47,7 +47,7 @@ lock::lock( sc_module_name module_name) :
 }
 
 /// Destructor
-lock::~lock() {
+multiplicador::~multiplicador() {
 
 }
 
@@ -55,7 +55,7 @@ lock::~lock() {
   * @param d id the data being write
   * @returns A TLM response packet with SUCCESS
 */
-ac_tlm_rsp_status lock::writel(const uint32_t &d, const uint32_t &a )
+ac_tlm_rsp_status multiplicador::writel(const uint32_t &d, const uint32_t &a )
 {
   
   if(*((uint32_t *) &a) == 0){
@@ -70,7 +70,7 @@ ac_tlm_rsp_status lock::writel(const uint32_t &d, const uint32_t &a )
   * @param d id the data that will be read
   * @returns A TLM response packet with SUCCESS and a modified d
 */
-ac_tlm_rsp_status lock::readl(uint32_t &d, const uint32_t &a )
+ac_tlm_rsp_status multiplicador::readl(uint32_t &d, const uint32_t &a )
 {
   if(*((uint32_t *) &a) == 0){
     *((uint32_t *) &d) = *((uint32_t *)&l);
