@@ -27,28 +27,58 @@
 // SystemC includes
 // ArchC includes
 
-#include "roteador.h"
+#include "lock.h"
 
 //////////////////////////////////////////////////////////////////////////////
 
 /// Namespace to isolate memory from ArchC
-using user::roteador;
+using user::lock;
 
 /// Constructor
-roteador::roteador( sc_module_name module_name) :
+lock::lock( sc_module_name module_name) :
   sc_module( module_name ),
-  target_export("iport"),
-  porta_mestre1("porta_mestre1", 5242880U),
-  porta_mestre2("porta_mestre2", 32)
+  target_export("iport")
 {
     /// Binds target_export to the memory
     target_export( *this );
+    
+    *((uint32_t *)&l) = (uint32_t)0;
 
 }
 
 /// Destructor
-roteador::~roteador() {
+lock::~lock() {
 
+}
+
+/** Internal Write lock
+  * @param d id the data being write
+  * @returns A TLM response packet with SUCCESS
+*/
+ac_tlm_rsp_status lock::writel(const uint32_t &d, const uint32_t &a )
+{
+  
+  if(*((uint32_t *) &a) == 5242880){
+    *((uint32_t *)&l) = *((uint32_t *) &d);
+    return SUCCESS;
+  } else {
+    return ERROR;
+  }
+}
+
+/** Internal Read Lock
+  * @param d id the data that will be read
+  * @returns A TLM response packet with SUCCESS and a modified d
+*/
+ac_tlm_rsp_status lock::readl(uint32_t &d, const uint32_t &a )
+{
+  if(*((uint32_t *) &a) == 5242880){
+    *((uint32_t *) &d) = *((uint32_t *)&l);
+    *((uint32_t *)&l) = (uint32_t)1;
+      return SUCCESS;
+  } else {
+    return ERROR;
+  }
 }
 
 

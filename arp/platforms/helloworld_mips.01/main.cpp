@@ -23,9 +23,11 @@ const char *archc_options="-abi -dy ";
 #include  "mips1.H"
 #include  "ac_tlm_mem.h"
 #include  "roteador.h"
+#include  "lock.h"
 
 using user::ac_tlm_mem;
 using user::roteador;
+using user::lock;
 
 int sc_main(int ac, char *av[])
 {
@@ -33,14 +35,17 @@ int sc_main(int ac, char *av[])
   //!  ISA simulator
   mips1 mips1_proc1("mips1");
   ac_tlm_mem mem("mem");
+  lock loc("loc");
   roteador rot("roteador");
+  
 
 #ifdef AC_DEBUG
   ac_trace("mips1_proc1.trace");
 #endif 
 
   mips1_proc1.DM_port(rot.target_export);
-  rot.porta_mestre(mem.target_export);
+  rot.porta_mestre1(mem.target_export);
+  rot.porta_mestre2(loc.target_export);
 
   mips1_proc1.init(ac, av);
   cerr << endl;
